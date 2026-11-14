@@ -1,0 +1,2 @@
+# The application uses the Python standard library. Pytest runs the tests.
+pytest>=8.4.2,<9.0

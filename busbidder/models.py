@@ -7,6 +7,13 @@ from decimal import Decimal
 
 @dataclass(frozen=True)
 class Offer:
+    """One bus offer, including its price, ticket conditions and available seats.
+
+    frozen=True prevents changes to the fields after an offer is created.
+    The CSV loader checks the data. Creating an Offer directly does not check
+    whether its values match the type hints or follow the validation rules.
+    """
+
     offer_id: str
     company: str
     destination: str
@@ -21,6 +28,12 @@ class Offer:
 
 @dataclass(frozen=True)
 class TravelRequest:
+    """The traveller's requirements, ready for the filtering step.
+
+    None means the traveller has not set that limit.
+    When require_changeable is False, either type of ticket is allowed.
+    """
+
     destination: str
     first_departure_date: date
     last_departure_date: date
