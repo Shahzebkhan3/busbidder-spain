@@ -156,6 +156,15 @@ def _parse_offer(
     )
 
 
+def load_destinations(data_dir: Path) -> list[str]:
+    """Return the names from the destination catalogue."""
+    path = Path(data_dir) / "destinations.csv"
+    names = [row["name"] for _, row in _read_records(path, ("name",), "name")]
+    if not names:
+        raise InvalidRecordError(f"{path}: no destinations found")
+    return names
+
+
 def load_offers(data_dir: Path) -> list[Offer]:
     """Load all offers. Stop and report an error if any record is invalid.
 
@@ -177,13 +186,7 @@ def load_offers(data_dir: Path) -> list[Offer]:
         if not companies:
             raise InvalidRecordError(f"{company_path}: no companies found")
 
-        destination_path = data_dir / "destinations.csv"
-        destinations = {
-            row["name"]
-            for _, row in _read_records(destination_path, ("name",), "name")
-        }
-        if not destinations:
-            raise InvalidRecordError(f"{destination_path}: no destinations found")
+        destinations = set(load_destinations(data_dir))
 
         offer_path = data_dir / "offers.csv"
         # Return the list only after all rows pass, so a bad row cannot leave

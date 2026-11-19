@@ -16,7 +16,11 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 def app_dir(tmp_path):
     project = tmp_path / "project"
     shutil.copytree(PROJECT_DIR / "busbidder", project / "busbidder")
-    shutil.copytree(PROJECT_DIR / "data", project / "data")
+    test_data = project / "data"
+    test_data.mkdir()
+    # Each test starts with the CSVs and an empty booking history.
+    for source in (PROJECT_DIR / "data").glob("*.csv"):
+        shutil.copy2(source, test_data)
     return project
 
 
@@ -30,7 +34,7 @@ def run_app(app_dir, *args):
 
 
 def test_command_loads_sample_and_writes_log(app_dir):
-    result = run_app(app_dir)
+    result = run_app(app_dir, "--list")
     assert result.returncode == 0, result.stderr
     assert "Loaded 6 valid offers." in result.stdout
     assert "O5 | NocheVia" in result.stdout
@@ -58,7 +62,7 @@ def test_command_can_read_a_selected_data_directory(app_dir):
         (selected / "offers.csv").read_text(encoding="utf-8").splitlines()[0] + "\n",
         encoding="utf-8",
     )
-    result = run_app(app_dir, "--data-dir", str(selected))
+    result = run_app(app_dir, "--list", "--data-dir", str(selected))
     assert result.returncode == 0, result.stderr
     assert "Loaded 0 valid offers." in result.stdout
 

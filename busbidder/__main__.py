@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 
 from .booking import BOOKINGS_FILENAME, BookingError, BookingStore
-from .data_loader import InvalidRecordError, load_offers
+from .data_loader import InvalidRecordError, load_destinations, load_offers
 from .filtering import filter_offers
 from .models import InvalidRequestError, Offer, TravelRequest
 from .ranking import DEPARTURE_CHOICES, RankingResult, ScoreWeights, rank_offers
@@ -72,8 +72,9 @@ def main() -> int:
     # Find the data folder from this file's location, so the path still works
     # when the project is copied to another folder.
     project_dir = Path(__file__).resolve().parent.parent
-    parser = argparse.ArgumentParser(description="Load bus offers and search by journey requirements.")
+    parser = argparse.ArgumentParser(description="Open BusBidder Spain or search from the command line.")
     parser.add_argument("--data-dir", type=Path, default=project_dir / "data")
+    parser.add_argument("--list", action="store_true", help="list offers in the terminal without ranking them")
     parser.add_argument("--destination", help="destination name, such as Malaga")
     parser.add_argument("--from-date", type=date.fromisoformat, help="first departure date (YYYY-MM-DD)")
     parser.add_argument("--to-date", type=date.fromisoformat, help="last departure date (YYYY-MM-DD)")
@@ -89,6 +90,9 @@ def main() -> int:
     parser.add_argument("--bookings-file", type=Path, help="use a separate file for saved bookings")
     args = parser.parse_args()
     request = _request_from_args(parser, args)
+    if args.list and request is not None:
+        parser.error("Use --list by itself or supply search arguments.")
+    show_window = request is None and not args.list
     weights = ScoreWeights()
     if args.weights is not None:
         try:
@@ -110,6 +114,8 @@ def main() -> int:
             format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
         )
         offers = load_offers(args.data_dir)
+        if show_window:
+            destinations = load_destinations(args.data_dir)
     except (InvalidRecordError, OSError) as error:
         print(f"Unable to load marketplace data: {error}", file=sys.stderr)
         return 1
@@ -117,18 +123,26 @@ def main() -> int:
     try:
         booking_path = args.bookings_file or args.data_dir / BOOKINGS_FILENAME
         booking_store = BookingStore(booking_path, offers)
-        offers = booking_store.available_offers()
+        available = booking_store.available_offers()
     except (BookingError, OSError) as error:
         print(f"Unable to check seat availability: {error}", file=sys.stderr)
         return 1
 
-    print(f"Loaded {len(offers)} valid offers.")
+    if show_window:
+        try:
+            from .gui import launch
+        except ImportError:
+            print("Tkinter is unavailable. Install Python with Tcl/Tk support or use --list.", file=sys.stderr)
+            return 1
+        return launch(booking_store, sorted(destinations), offers)
+
+    print(f"Loaded {len(available)} valid offers.")
     if request is None:
-        for offer in offers:
+        for offer in available:
             print(_offer_details(offer))
         return 0
 
-    result = filter_offers(offers, request)
+    result = filter_offers(available, request)
     print(f"{len(result.accepted)} offers match your requirements.")
     if not result.accepted:
         print("No offers matched. Review your requirements and any rejection reasons below.")
