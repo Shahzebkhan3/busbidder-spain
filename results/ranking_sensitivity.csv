@@ -1,0 +1,15 @@
+price_method,eligible_set,rank,offer_id,company,fare_eur,duration_minutes,price_score,duration_score,departure_score,flexibility_score,total
+min-max,all matches,1,O2,Camino Express,46.00,300,0.0,100.0,100.0,100.0,60.0
+min-max,all matches,2,O3,CostaLink,40.00,350,24.0,72.2,100.0,50.0,52.7
+min-max,all matches,3,O4,VerdeBus,41.00,355,20.0,69.4,100.0,50.0,50.4
+min-max,all matches,4,O5,NocheVia,21.00,480,100.0,0.0,0.0,50.0,50.0
+min-max,without O5,1,O3,CostaLink,40.00,350,100.0,9.1,100.0,50.0,67.3
+min-max,without O5,2,O2,Camino Express,46.00,300,0.0,100.0,100.0,100.0,60.0
+min-max,without O5,3,O4,VerdeBus,41.00,355,83.3,0.0,100.0,50.0,58.3
+budget,all matches,1,O2,Camino Express,46.00,300,8.0,100.0,100.0,100.0,63.2
+budget,all matches,2,O3,CostaLink,40.00,350,20.0,72.2,100.0,50.0,51.1
+budget,all matches,3,O4,VerdeBus,41.00,355,18.0,69.4,100.0,50.0,49.6
+budget,all matches,4,O5,NocheVia,21.00,480,58.0,0.0,0.0,50.0,33.2
+budget,without O5,1,O2,Camino Express,46.00,300,8.0,100.0,100.0,100.0,63.2
+budget,without O5,2,O3,CostaLink,40.00,350,20.0,9.1,100.0,50.0,35.3
+budget,without O5,3,O4,VerdeBus,41.00,355,18.0,0.0,100.0,50.0,32.2

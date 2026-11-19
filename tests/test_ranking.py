@@ -3,7 +3,6 @@
 from dataclasses import replace
 from datetime import date, time, timedelta
 from decimal import Decimal
-from pathlib import Path
 
 import pytest
 
@@ -14,12 +13,11 @@ from busbidder.ranking import ScoreWeights, departure_score, rank_offers
 
 
 @pytest.fixture
-def sample_offers():
-    data_dir = Path(__file__).resolve().parents[1] / "data"
+def sample_offers(sample_data):
     request = TravelRequest(
         "Malaga", date(2027, 7, 12), date(2027, 7, 14), Decimal("50"), 1, True,
     )
-    return filter_offers(load_offers(data_dir), request).accepted
+    return filter_offers(load_offers(sample_data), request).accepted
 
 
 def test_worked_example_scores_and_explanation(sample_offers):

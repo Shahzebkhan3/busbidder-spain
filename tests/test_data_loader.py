@@ -2,7 +2,6 @@
 
 import csv
 import logging
-import shutil
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -12,12 +11,9 @@ import pytest
 from busbidder.data_loader import InvalidRecordError, load_offers
 
 
-PROJECT_DIR = Path(__file__).resolve().parents[1]
-
-
 @pytest.fixture
-def data_dir(tmp_path):
-    return Path(shutil.copytree(PROJECT_DIR / "data", tmp_path / "data"))
+def data_dir(sample_data):
+    return sample_data
 
 
 def read_csv(path):

@@ -1,0 +1,7 @@
+offer_id,company,destination,departs_at,arrives_at,price_eur,transfers,changeable,refundable,seats_available
+O1,SolRuta,Malaga,2027-07-12T08:30,2027-07-12T14:40,29.00,1,false,false,20
+O2,Camino Express,Malaga,2027-07-13T09:00,2027-07-13T14:00,46.00,0,true,true,10
+O3,CostaLink,Malaga,2027-07-12T11:15,2027-07-12T17:05,40.00,0,true,false,12
+O4,VerdeBus,Malaga,2027-07-14T07:45,2027-07-14T13:40,41.00,1,true,false,8
+O5,NocheVia,Malaga,2027-07-13T23:30,2027-07-14T07:30,21.00,0,true,false,15
+O6,Camino Express,Malaga,2027-07-12T10:00,2027-07-12T14:50,54.00,0,true,true,6

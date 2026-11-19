@@ -1,0 +1,5 @@
+{
+  "Budget traveller": {"price": 85, "duration": 5, "departure": 5, "flexibility": 5},
+  "Business traveller": {"price": 20, "duration": 55, "departure": 15, "flexibility": 10},
+  "Morning traveller": {"price": 45, "duration": 10, "departure": 40, "flexibility": 5}
+}

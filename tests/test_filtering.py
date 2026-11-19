@@ -4,7 +4,6 @@ from dataclasses import replace
 from datetime import date, datetime
 from decimal import Decimal
 import logging
-from pathlib import Path
 
 import pytest
 
@@ -35,9 +34,8 @@ def offer():
     )
 
 
-def test_example_request_keeps_four_offers_and_explains_two_rejections(request_details, caplog):
-    data_dir = Path(__file__).resolve().parents[1] / "data"
-    offers = load_offers(data_dir)
+def test_example_request_keeps_four_offers_and_explains_two_rejections(request_details, caplog, sample_data):
+    offers = load_offers(sample_data)
     before = list(offers)
     with caplog.at_level(logging.INFO, logger="busbidder.filtering"):
         result = filter_offers(offers, request_details)

@@ -1,5 +1,6 @@
 """Score eligible offers for the traveller's chosen preferences."""
 
+from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
 from datetime import time
@@ -77,6 +78,38 @@ def lower_is_better(value: Decimal, minimum: Decimal, maximum: Decimal) -> Fract
     return 100 * (high - Fraction(value)) / (high - low)
 
 
+class PriceScale(ABC):
+    """A price scoring rule used by the same ranking function."""
+
+    @abstractmethod
+    def score(self, price: Decimal) -> Fraction:
+        """Return a price score between 0 and 100."""
+
+
+@dataclass(frozen=True)
+class MinMaxPrice(PriceScale):
+    lowest: Decimal
+    highest: Decimal
+
+    def score(self, price: Decimal) -> Fraction:
+        return lower_is_better(price, self.lowest, self.highest)
+
+
+@dataclass(frozen=True)
+class BudgetPrice(PriceScale):
+    """Score the share of the budget left after paying the fare."""
+
+    budget: Decimal
+
+    def __post_init__(self) -> None:
+        if not self.budget.is_finite() or self.budget <= 0:
+            raise ValueError("Budget-based scoring needs a positive budget.")
+
+    def score(self, price: Decimal) -> Fraction:
+        budget = Fraction(self.budget)
+        return max(Fraction(0), 100 * (budget - Fraction(price)) / budget)
+
+
 def departure_score(departure: time, preference: str) -> Fraction:
     """Score the distance to the chosen time window, including across midnight."""
     if preference == "any":
@@ -129,7 +162,8 @@ def _recommendation(offers: list[RankedOffer], weights: dict[str, Decimal]) -> s
 
 
 def rank_offers(
-    offers: list[Offer], weights: ScoreWeights = ScoreWeights(), preferred_departure: str = "any"
+    offers: list[Offer], weights: ScoreWeights = ScoreWeights(), preferred_departure: str = "any",
+    *, price_scale: PriceScale | None = None,
 ) -> RankingResult:
     """Rank offers that already passed the hard requirements."""
     if preferred_departure not in DEPARTURE_CHOICES:
@@ -137,9 +171,10 @@ def rank_offers(
     if not offers:
         return RankingResult(offers=[], notes=[], recommendation=None)
 
-    prices = [offer.price_eur for offer in offers]
+    if price_scale is None:
+        prices = [offer.price_eur for offer in offers]
+        price_scale = MinMaxPrice(min(prices), max(prices))
     durations = [int((offer.arrives_at - offer.departs_at).total_seconds() // 60) for offer in offers]
-    lowest_price, highest_price = min(prices), max(prices)
     shortest, longest = Decimal(min(durations)), Decimal(max(durations))
     percentages = weights.as_dict()
     weight_fractions = {name: Fraction(value) / 100 for name, value in percentages.items()}
@@ -147,7 +182,7 @@ def rank_offers(
     ranked = []
     for offer, duration in zip(offers, durations):
         scores = {
-            "price": lower_is_better(offer.price_eur, lowest_price, highest_price),
+            "price": price_scale.score(offer.price_eur),
             "duration": lower_is_better(Decimal(duration), shortest, longest),
             "departure": departure_score(offer.departs_at.time(), preferred_departure),
             "flexibility": Fraction(50 * offer.changeable + 50 * offer.refundable),
@@ -174,7 +209,7 @@ def rank_offers(
         previous_total = row.total
 
     notes = []
-    if lowest_price == highest_price:
+    if isinstance(price_scale, MinMaxPrice) and price_scale.lowest == price_scale.highest:
         notes.append("Price gets 50 for every offer because there is no price difference to compare.")
     if shortest == longest:
         notes.append("Duration gets 50 for every offer because there is no duration difference to compare.")

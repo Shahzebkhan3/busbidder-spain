@@ -1,0 +1,15 @@
+destination,duration_minutes,price_eur,coastal
+Barcelona,470,43,true
+Valencia,260,33,true
+Seville,385,39,false
+Granada,315,37,false
+Cordoba,305,35,false
+Bilbao,330,38,false
+San Sebastian,390,43,true
+Zaragoza,245,26,false
+Alicante,320,34,true
+Murcia,285,32,false
+Salamanca,165,23,false
+Toledo,75,13,false
+Santiago de Compostela,535,47,false
+Cadiz,475,43,true

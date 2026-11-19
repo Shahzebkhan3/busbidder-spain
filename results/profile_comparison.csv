@@ -1,0 +1,13 @@
+profile,price_weight,duration_weight,departure_weight,flexibility_weight,rank,offer_id,company,fare_eur,duration_minutes,price_score,duration_score,departure_score,flexibility_score,total
+Budget traveller,85,5,5,5,1,O5,NocheVia,21.00,480,100.0,0.0,0.0,50.0,87.5
+Budget traveller,85,5,5,5,2,O3,CostaLink,40.00,350,24.0,72.2,100.0,50.0,31.5
+Budget traveller,85,5,5,5,3,O4,VerdeBus,41.00,355,20.0,69.4,100.0,50.0,28.0
+Budget traveller,85,5,5,5,4,O2,Camino Express,46.00,300,0.0,100.0,100.0,100.0,15.0
+Business traveller,20,55,15,10,1,O2,Camino Express,46.00,300,0.0,100.0,100.0,100.0,80.0
+Business traveller,20,55,15,10,2,O3,CostaLink,40.00,350,24.0,72.2,100.0,50.0,64.5
+Business traveller,20,55,15,10,3,O4,VerdeBus,41.00,355,20.0,69.4,100.0,50.0,62.2
+Business traveller,20,55,15,10,4,O5,NocheVia,21.00,480,100.0,0.0,0.0,50.0,25.0
+Morning traveller,45,10,40,5,1,O3,CostaLink,40.00,350,24.0,72.2,100.0,50.0,60.5
+Morning traveller,45,10,40,5,2,O4,VerdeBus,41.00,355,20.0,69.4,100.0,50.0,58.4
+Morning traveller,45,10,40,5,3,O2,Camino Express,46.00,300,0.0,100.0,100.0,100.0,55.0
+Morning traveller,45,10,40,5,4,O5,NocheVia,21.00,480,100.0,0.0,0.0,50.0,47.5

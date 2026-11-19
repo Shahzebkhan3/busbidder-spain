@@ -1,5 +1,6 @@
 """Check the package command and actual file logging from a clean project copy."""
 
+import csv
 import os
 from pathlib import Path
 import shutil
@@ -13,14 +14,10 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
-def app_dir(tmp_path):
+def app_dir(tmp_path, sample_data):
     project = tmp_path / "project"
     shutil.copytree(PROJECT_DIR / "busbidder", project / "busbidder")
-    test_data = project / "data"
-    test_data.mkdir()
-    # Each test starts with the CSVs and an empty booking history.
-    for source in (PROJECT_DIR / "data").glob("*.csv"):
-        shutil.copy2(source, test_data)
+    shutil.copytree(sample_data, project / "data")
     return project
 
 
@@ -65,6 +62,20 @@ def test_command_can_read_a_selected_data_directory(app_dir):
     result = run_app(app_dir, "--list", "--data-dir", str(selected))
     assert result.returncode == 0, result.stderr
     assert "Loaded 0 valid offers." in result.stdout
+
+
+def test_compare_writes_the_tables_without_using_local_bookings(app_dir):
+    (app_dir / "data" / "bookings.sqlite3").write_text("not a database", encoding="utf-8")
+    output = app_dir / "evaluation"
+    result = run_app(app_dir, "--compare", "--results-dir", str(output))
+    assert result.returncode == 0, result.stderr
+    with (output / "profile_comparison.csv").open(encoding="utf-8", newline="") as source:
+        top = {row["profile"]: row["offer_id"] for row in csv.DictReader(source) if row["rank"] == "1"}
+    assert top == {"Budget traveller": "O5", "Business traveller": "O2", "Morning traveller": "O3"}
+    for name in ("profile_comparison.csv", "ranking_sensitivity.csv"):
+        generated = (output / name).read_text(encoding="utf-8")
+        committed = (PROJECT_DIR / "results" / name).read_text(encoding="utf-8")
+        assert generated == committed
 
 
 SEARCH_ARGS = ["--destination", "Malaga", "--from-date", "2027-07-12", "--to-date", "2027-07-14"]

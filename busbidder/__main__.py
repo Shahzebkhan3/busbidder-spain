@@ -9,8 +9,10 @@ import sys
 
 from .booking import BOOKINGS_FILENAME, BookingError, BookingStore
 from .data_loader import InvalidRecordError, load_destinations, load_offers
+from .experiments import write_comparisons
 from .filtering import filter_offers
 from .models import InvalidRequestError, Offer, TravelRequest
+from .profiles import load_profiles
 from .ranking import DEPARTURE_CHOICES, RankingResult, ScoreWeights, rank_offers
 
 
@@ -74,7 +76,10 @@ def main() -> int:
     project_dir = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description="Open BusBidder Spain or search from the command line.")
     parser.add_argument("--data-dir", type=Path, default=project_dir / "data")
-    parser.add_argument("--list", action="store_true", help="list offers in the terminal without ranking them")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--list", action="store_true", help="list offers in the terminal without ranking them")
+    mode.add_argument("--compare", action="store_true", help="reproduce the Malaga comparison tables")
+    parser.add_argument("--results-dir", type=Path, help="output folder for --compare")
     parser.add_argument("--destination", help="destination name, such as Malaga")
     parser.add_argument("--from-date", type=date.fromisoformat, help="first departure date (YYYY-MM-DD)")
     parser.add_argument("--to-date", type=date.fromisoformat, help="last departure date (YYYY-MM-DD)")
@@ -92,7 +97,11 @@ def main() -> int:
     request = _request_from_args(parser, args)
     if args.list and request is not None:
         parser.error("Use --list by itself or supply search arguments.")
-    show_window = request is None and not args.list
+    if args.compare and (request is not None or args.bookings_file is not None):
+        parser.error("--compare uses the fixed Malaga request and the original CSV capacity.")
+    if args.results_dir is not None and not args.compare:
+        parser.error("--results-dir requires --compare.")
+    show_window = request is None and not (args.list or args.compare)
     weights = ScoreWeights()
     if args.weights is not None:
         try:
@@ -116,9 +125,22 @@ def main() -> int:
         offers = load_offers(args.data_dir)
         if show_window:
             destinations = load_destinations(args.data_dir)
+        if show_window or args.compare:
+            profiles = load_profiles(project_dir / "data" / "profiles.json")
     except (InvalidRecordError, OSError) as error:
         print(f"Unable to load marketplace data: {error}", file=sys.stderr)
         return 1
+
+    if args.compare:
+        try:
+            results_dir = args.results_dir or project_dir / "results"
+            paths = write_comparisons(offers, profiles, results_dir)
+        except (ValueError, OSError) as error:
+            print(f"Unable to write the comparison: {error}", file=sys.stderr)
+            return 1
+        for path in paths:
+            print(f"Wrote {path}")
+        return 0
 
     try:
         booking_path = args.bookings_file or args.data_dir / BOOKINGS_FILENAME
@@ -134,7 +156,7 @@ def main() -> int:
         except ImportError:
             print("Tkinter is unavailable. Install Python with Tcl/Tk support or use --list.", file=sys.stderr)
             return 1
-        return launch(booking_store, sorted(destinations), offers)
+        return launch(booking_store, sorted(destinations), offers, profiles)
 
     print(f"Loaded {len(available)} valid offers.")
     if request is None:

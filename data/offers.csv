@@ -5,3 +5,73 @@ O3,CostaLink,Malaga,2027-07-12T11:15,2027-07-12T17:05,40.00,0,true,false,12
 O4,VerdeBus,Malaga,2027-07-14T07:45,2027-07-14T13:40,41.00,1,true,false,8
 O5,NocheVia,Malaga,2027-07-13T23:30,2027-07-14T07:30,21.00,0,true,false,15
 O6,Camino Express,Malaga,2027-07-12T10:00,2027-07-12T14:50,54.00,0,true,true,6
+O7,SolRuta,Barcelona,2027-07-12T08:30,2027-07-12T16:40,36.55,1,false,false,20
+O8,Camino Express,Barcelona,2027-07-13T09:00,2027-07-13T16:15,50.74,0,true,true,12
+O9,CostaLink,Barcelona,2027-07-12T11:15,2027-07-12T18:50,40.85,0,true,false,12
+O10,VerdeBus,Barcelona,2027-07-14T07:45,2027-07-14T15:45,44.29,0,true,false,9
+O11,NocheVia,Barcelona,2027-07-13T23:30,2027-07-14T08:05,31.39,0,true,false,15
+O12,SolRuta,Valencia,2027-07-12T08:30,2027-07-12T13:10,28.05,0,false,false,20
+O13,Camino Express,Valencia,2027-07-13T09:00,2027-07-13T12:45,38.94,0,true,true,12
+O14,CostaLink,Valencia,2027-07-12T11:15,2027-07-12T15:20,31.35,0,true,false,12
+O15,VerdeBus,Valencia,2027-07-14T07:45,2027-07-14T12:15,33.99,0,true,false,9
+O16,NocheVia,Valencia,2027-07-13T23:30,2027-07-14T04:35,24.09,0,true,false,15
+O17,SolRuta,Seville,2027-07-12T08:30,2027-07-12T15:15,33.15,1,false,false,20
+O18,Camino Express,Seville,2027-07-13T09:00,2027-07-13T14:50,46.02,0,true,true,12
+O19,CostaLink,Seville,2027-07-12T11:15,2027-07-12T18:05,39.00,0,true,false,12
+O20,VerdeBus,Seville,2027-07-14T07:45,2027-07-14T14:20,40.17,0,true,false,9
+O21,NocheVia,Seville,2027-07-13T23:30,2027-07-14T06:40,28.47,0,true,false,15
+O22,SolRuta,Granada,2027-07-12T08:30,2027-07-12T14:05,31.45,1,false,false,20
+O23,Camino Express,Granada,2027-07-13T09:00,2027-07-13T13:40,43.66,0,true,true,12
+O24,CostaLink,Granada,2027-07-12T11:15,2027-07-12T16:55,37.00,0,true,false,12
+O25,VerdeBus,Granada,2027-07-14T07:45,2027-07-14T13:10,38.11,0,true,false,9
+O26,NocheVia,Granada,2027-07-13T23:30,2027-07-14T05:30,27.01,0,true,false,15
+O27,SolRuta,Cordoba,2027-07-12T08:30,2027-07-12T13:55,29.75,1,false,false,20
+O28,Camino Express,Cordoba,2027-07-13T09:00,2027-07-13T13:30,41.30,0,true,true,12
+O29,CostaLink,Cordoba,2027-07-12T11:15,2027-07-12T16:45,35.00,0,true,false,12
+O30,VerdeBus,Cordoba,2027-07-14T07:45,2027-07-14T13:00,36.05,0,true,false,9
+O31,NocheVia,Cordoba,2027-07-13T23:30,2027-07-14T05:20,25.55,0,true,false,15
+O32,SolRuta,Bilbao,2027-07-12T08:30,2027-07-12T14:20,32.30,1,false,false,20
+O33,Camino Express,Bilbao,2027-07-13T09:00,2027-07-13T13:55,44.84,0,true,true,12
+O34,CostaLink,Bilbao,2027-07-12T11:15,2027-07-12T17:10,38.00,0,true,false,12
+O35,VerdeBus,Bilbao,2027-07-14T07:45,2027-07-14T13:25,39.14,0,true,false,9
+O36,NocheVia,Bilbao,2027-07-13T23:30,2027-07-14T05:45,27.74,0,true,false,15
+O37,SolRuta,San Sebastian,2027-07-12T08:30,2027-07-12T15:20,36.55,1,false,false,20
+O38,Camino Express,San Sebastian,2027-07-13T09:00,2027-07-13T14:55,50.74,0,true,true,12
+O39,CostaLink,San Sebastian,2027-07-12T11:15,2027-07-12T17:30,40.85,0,true,false,12
+O40,VerdeBus,San Sebastian,2027-07-14T07:45,2027-07-14T14:25,44.29,0,true,false,9
+O41,NocheVia,San Sebastian,2027-07-13T23:30,2027-07-14T06:45,31.39,0,true,false,15
+O42,SolRuta,Zaragoza,2027-07-12T08:30,2027-07-12T12:55,22.10,0,false,false,20
+O43,Camino Express,Zaragoza,2027-07-13T09:00,2027-07-13T12:30,30.68,0,true,true,12
+O44,CostaLink,Zaragoza,2027-07-12T11:15,2027-07-12T15:45,26.00,0,true,false,12
+O45,VerdeBus,Zaragoza,2027-07-14T07:45,2027-07-14T12:00,26.78,0,true,false,9
+O46,NocheVia,Zaragoza,2027-07-13T23:30,2027-07-14T04:20,18.98,0,true,false,15
+O47,SolRuta,Alicante,2027-07-12T08:30,2027-07-12T14:10,28.90,1,false,false,20
+O48,Camino Express,Alicante,2027-07-13T09:00,2027-07-13T13:45,40.12,0,true,true,12
+O49,CostaLink,Alicante,2027-07-12T11:15,2027-07-12T16:20,32.30,0,true,false,12
+O50,VerdeBus,Alicante,2027-07-14T07:45,2027-07-14T13:15,35.02,0,true,false,9
+O51,NocheVia,Alicante,2027-07-13T23:30,2027-07-14T05:35,24.82,0,true,false,15
+O52,SolRuta,Murcia,2027-07-12T08:30,2027-07-12T13:35,27.20,0,false,false,20
+O53,Camino Express,Murcia,2027-07-13T09:00,2027-07-13T13:10,37.76,0,true,true,12
+O54,CostaLink,Murcia,2027-07-12T11:15,2027-07-12T16:25,32.00,0,true,false,12
+O55,VerdeBus,Murcia,2027-07-14T07:45,2027-07-14T12:40,32.96,0,true,false,9
+O56,NocheVia,Murcia,2027-07-13T23:30,2027-07-14T05:00,23.36,0,true,false,15
+O57,SolRuta,Salamanca,2027-07-12T08:30,2027-07-12T11:35,19.55,0,false,false,20
+O58,Camino Express,Salamanca,2027-07-13T09:00,2027-07-13T11:10,27.14,0,true,true,12
+O59,CostaLink,Salamanca,2027-07-12T11:15,2027-07-12T14:25,23.00,0,true,false,12
+O60,VerdeBus,Salamanca,2027-07-14T07:45,2027-07-14T10:40,23.69,0,true,false,9
+O61,NocheVia,Salamanca,2027-07-13T23:30,2027-07-14T03:00,16.79,0,true,false,15
+O62,SolRuta,Toledo,2027-07-12T08:30,2027-07-12T10:05,11.05,0,false,false,20
+O63,Camino Express,Toledo,2027-07-13T09:00,2027-07-13T09:40,15.34,0,true,true,12
+O64,CostaLink,Toledo,2027-07-12T11:15,2027-07-12T12:55,13.00,0,true,false,12
+O65,VerdeBus,Toledo,2027-07-14T07:45,2027-07-14T09:10,13.39,0,true,false,9
+O66,NocheVia,Toledo,2027-07-13T23:30,2027-07-14T01:30,9.49,0,true,false,15
+O67,SolRuta,Santiago de Compostela,2027-07-12T08:30,2027-07-12T17:45,39.95,1,false,false,20
+O68,Camino Express,Santiago de Compostela,2027-07-13T09:00,2027-07-13T17:20,55.46,0,true,true,12
+O69,CostaLink,Santiago de Compostela,2027-07-12T11:15,2027-07-12T20:35,47.00,0,true,false,12
+O70,VerdeBus,Santiago de Compostela,2027-07-14T07:45,2027-07-14T16:50,48.41,0,true,false,9
+O71,NocheVia,Santiago de Compostela,2027-07-13T23:30,2027-07-14T09:10,34.31,0,true,false,15
+O72,SolRuta,Cadiz,2027-07-12T08:30,2027-07-12T16:45,36.55,1,false,false,20
+O73,Camino Express,Cadiz,2027-07-13T09:00,2027-07-13T16:20,50.74,0,true,true,12
+O74,CostaLink,Cadiz,2027-07-12T11:15,2027-07-12T18:55,40.85,0,true,false,12
+O75,VerdeBus,Cadiz,2027-07-14T07:45,2027-07-14T15:50,44.29,0,true,false,9
+O76,NocheVia,Cadiz,2027-07-13T23:30,2027-07-14T08:10,31.39,0,true,false,15

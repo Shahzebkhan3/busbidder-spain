@@ -9,6 +9,7 @@ from tkinter import messagebox, ttk
 from .booking import BookingError, BookingStore
 from .filtering import filter_offers
 from .models import Offer, TravelRequest
+from .profiles import CUSTOM_PROFILE
 from .ranking import DEPARTURE_CHOICES, RankedOffer, ScoreWeights, rank_offers
 
 
@@ -34,11 +35,13 @@ class SearchWindow:
     """Show the existing search, ranking and booking functions in one window."""
 
     def __init__(
-        self, root: tk.Tk, bookings: BookingStore, destinations: list[str], offers: list[Offer]
+        self, root: tk.Tk, bookings: BookingStore, destinations: list[str],
+        offers: list[Offer], profiles: dict[str, ScoreWeights],
     ) -> None:
         self.root = root
         self.bookings = bookings
         self.destinations = destinations
+        self.profiles = profiles
         self.ranked: dict[str, RankedOffer] = {}
         self.results_current = False
         default_destination = offers[0].destination if offers else destinations[0]
@@ -52,6 +55,7 @@ class SearchWindow:
         self.transfers = tk.StringVar(root)
         self.changeable = tk.BooleanVar(root, value=False)
         self.departure = tk.StringVar(root, value="Any time")
+        self.profile = tk.StringVar(root, value=CUSTOM_PROFILE)
         self.weights = {
             name: tk.StringVar(root, value=str(value))
             for name, value in ScoreWeights().as_dict().items()
@@ -63,9 +67,11 @@ class SearchWindow:
         self._build_window()
         for field in (
             self.destination, self.first_date, self.last_date, self.budget,
-            self.transfers, self.changeable, self.departure, *self.weights.values(),
+            self.transfers, self.changeable, self.departure,
         ):
             field.trace_add("write", self._request_changed)
+        for field in self.weights.values():
+            field.trace_add("write", self._weight_changed)
 
     def _build_window(self) -> None:
         self.root.title("BusBidder Spain")
@@ -140,10 +146,21 @@ class SearchWindow:
 
         ttk.Separator(form).pack(fill="x", pady=12)
         ttk.Label(form, text="Scoring preferences", style="Section.TLabel").pack(anchor="w", pady=(0, 8))
-        ttk.Label(form, text="Preferred departure").pack(anchor="w")
+        preferences = ttk.Frame(form, style="Card.TFrame")
+        preferences.pack(fill="x", pady=(0, 8))
+        preferences.columnconfigure((0, 1), weight=1)
+        ttk.Label(preferences, text="Preferred departure").grid(row=0, column=0, sticky="w")
         ttk.Combobox(
-            form, textvariable=self.departure, values=list(DEPARTURE_LABELS), state="readonly",
-        ).pack(fill="x", pady=(2, 8))
+            preferences, textvariable=self.departure, values=list(DEPARTURE_LABELS),
+            state="readonly", width=13,
+        ).grid(row=1, column=0, sticky="ew", padx=(0, 6), pady=(2, 0))
+        ttk.Label(preferences, text="Traveller profile").grid(row=0, column=1, sticky="w")
+        profile_picker = ttk.Combobox(
+            preferences, textvariable=self.profile, values=[CUSTOM_PROFILE, *self.profiles],
+            state="readonly", width=17,
+        )
+        profile_picker.grid(row=1, column=1, sticky="ew", pady=(2, 0))
+        profile_picker.bind("<<ComboboxSelected>>", self._apply_profile)
         ttk.Label(form, text="Weights (%) — total must be 100", style="Muted.TLabel").pack(anchor="w")
         weights = ttk.Frame(form, style="Card.TFrame")
         weights.pack(fill="x", pady=(4, 12))
@@ -226,6 +243,18 @@ class SearchWindow:
             self.results_current = False
             self.book_button.state(["disabled"])
             self._show_status("Search again to apply your changes.")
+
+    def _weight_changed(self, *_args: str) -> None:
+        self.profile.set(CUSTOM_PROFILE)
+        self._request_changed()
+
+    def _apply_profile(self, _event: tk.Event | None = None) -> None:
+        name = self.profile.get()
+        weights = self.profiles.get(name)
+        if weights is not None:
+            for criterion, percentage in weights.as_dict().items():
+                self.weights[criterion].set(str(percentage))
+            self.profile.set(name)
 
     def _show_status(self, text: str, error: bool = False) -> None:
         self.status.set(text)
@@ -351,13 +380,16 @@ class SearchWindow:
         )
 
 
-def launch(bookings: BookingStore, destinations: list[str], offers: list[Offer]) -> int:
+def launch(
+    bookings: BookingStore, destinations: list[str], offers: list[Offer],
+    profiles: dict[str, ScoreWeights],
+) -> int:
     """Open the search window and wait for it to close."""
     try:
         root = tk.Tk()
     except tk.TclError as error:
         print(f"Could not open the BusBidder window: {error}", file=sys.stderr)
         return 1
-    SearchWindow(root, bookings, destinations, offers)
+    SearchWindow(root, bookings, destinations, offers, profiles)
     root.mainloop()
     return 0
