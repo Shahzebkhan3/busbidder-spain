@@ -89,6 +89,23 @@ def test_search_without_optional_limits_accepts_all_sample_offers(app_dir):
     assert "Rejected offers:" not in result.stdout
 
 
+def test_worked_example_command_ranks_only_matching_offers(app_dir):
+    result = run_app(
+        app_dir, *SEARCH_ARGS, "--max-price", "50", "--max-transfers", "1",
+        "--require-changeable", "--departure", "morning", "--weights", "40", "25", "15", "20",
+    )
+    assert result.returncode == 0, result.stderr
+    assert "1. O2 | Camino Express" in result.stdout
+    assert "Total 60.0/100 | price 0.0 | duration 100.0 | departure 100.0 | flexibility 100.0" in result.stdout
+    assert "4. O5 | NocheVia" in result.stdout
+    assert "biggest trade-off is price" in result.stdout
+    ranked, rejected = result.stdout.split("Rejected offers:")
+    assert "O1 |" not in ranked
+    assert "O6 |" not in ranked
+    assert "O1 | Ticket must be changeable." in rejected
+    assert "O6 | Price EUR 54.00 exceeds budget EUR 50.00." in rejected
+
+
 def test_search_with_no_matches_explains_rejections(app_dir):
     result = run_app(app_dir, *SEARCH_ARGS, "--max-price", "0")
     assert result.returncode == 0, result.stderr
@@ -109,6 +126,9 @@ def test_search_with_no_matches_explains_rejections(app_dir):
         ([*SEARCH_ARGS, "--to-date", "2027-07-11"], "last departure date"),
         ([*SEARCH_ARGS, "--from-date", "2027-02-30"], "--from-date"),
         ([*SEARCH_ARGS, "--destination", " "], "Enter a destination"),
+        ([*SEARCH_ARGS, "--departure", "midday"], "invalid choice"),
+        ([*SEARCH_ARGS, "--weights", "40", "20", "15", "20"], "weights must add up to 100%"),
+        ([*SEARCH_ARGS, "--weights", "high", "25", "15", "20"], "must contain four numbers"),
     ],
 )
 def test_invalid_search_arguments_produce_helpful_errors(app_dir, arguments, expected):

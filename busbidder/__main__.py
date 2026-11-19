@@ -10,11 +10,15 @@ import sys
 from .data_loader import InvalidRecordError, load_offers
 from .filtering import filter_offers
 from .models import InvalidRequestError, Offer, TravelRequest
+from .ranking import DEPARTURE_CHOICES, RankingResult, ScoreWeights, rank_offers
 
 
 def _request_from_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> TravelRequest | None:
     """Build a search request, or return None when only loading data."""
-    search_values = (args.destination, args.from_date, args.to_date, args.max_price, args.max_transfers)
+    search_values = (
+        args.destination, args.from_date, args.to_date, args.max_price,
+        args.max_transfers, args.departure, args.weights,
+    )
     if all(value is None for value in search_values) and not args.require_changeable:
         return None
     if args.destination is None or args.from_date is None or args.to_date is None:
@@ -37,14 +41,29 @@ def _request_from_args(parser: argparse.ArgumentParser, args: argparse.Namespace
         parser.error(str(error))
 
 
-def _show_offers(offers: list[Offer]) -> None:
-    """Print the same offer details for loading and search results."""
-    for offer in offers:
-        print(
-            f"{offer.offer_id} | {offer.company} | Madrid -> {offer.destination} | "
-            f"{offer.departs_at:%Y-%m-%d %H:%M} -> {offer.arrives_at:%Y-%m-%d %H:%M} | "
-            f"EUR {offer.price_eur:.2f} | {offer.seats_available} seats"
-        )
+def _offer_details(offer: Offer) -> str:
+    return (
+        f"{offer.offer_id} | {offer.company} | Madrid -> {offer.destination} | "
+        f"{offer.departs_at:%Y-%m-%d %H:%M} -> {offer.arrives_at:%Y-%m-%d %H:%M} | "
+        f"EUR {offer.price_eur:.2f} | {offer.seats_available} seats"
+    )
+
+
+def _show_ranking(result: RankingResult, weights: ScoreWeights, preferred_departure: str) -> None:
+    print("Weights: " + ", ".join(f"{name} {value}%" for name, value in weights.as_dict().items()))
+    print(f"Preferred departure: {'any time' if preferred_departure == 'any' else preferred_departure}")
+    for row in result.offers:
+        rank = f"={row.rank}" if row.tied else str(row.rank)
+        print(f"{rank}. {_offer_details(row.offer)}")
+        change = "yes" if row.offer.changeable else "no"
+        refund = "yes" if row.offer.refundable else "no"
+        print(f"   {row.duration_minutes} min | transfers {row.offer.transfers} | changeable {change} | refundable {refund}")
+        components = " | ".join(f"{name} {score:.1f}" for name, score in row.scores.items())
+        print(f"   Total {row.total:.1f}/100 | {components}")
+    for note in result.notes:
+        print(note)
+    if result.recommendation:
+        print(result.recommendation)
 
 
 def main() -> int:
@@ -60,8 +79,21 @@ def main() -> int:
     parser.add_argument("--max-price", help="maximum ticket price in EUR")
     parser.add_argument("--max-transfers", type=int, help="maximum number of transfers")
     parser.add_argument("--require-changeable", action="store_true", help="only allow changeable tickets")
+    parser.add_argument("--departure", choices=DEPARTURE_CHOICES, help="preferred departure period (default: any)")
+    parser.add_argument(
+        "--weights", nargs=4, metavar=("PRICE", "DURATION", "DEPARTURE", "FLEXIBILITY"),
+        help="four percentages adding up to 100 (default: 40 25 15 20)",
+    )
     args = parser.parse_args()
     request = _request_from_args(parser, args)
+    weights = ScoreWeights()
+    if args.weights is not None:
+        try:
+            weights = ScoreWeights(*(Decimal(value) for value in args.weights))
+        except InvalidOperation:
+            parser.error("--weights must contain four numbers.")
+        except ValueError as error:
+            parser.error(str(error))
 
     try:
         log_dir = project_dir / "logs"
@@ -81,14 +113,18 @@ def main() -> int:
 
     print(f"Loaded {len(offers)} valid offers.")
     if request is None:
-        _show_offers(offers)
+        for offer in offers:
+            print(_offer_details(offer))
         return 0
 
     result = filter_offers(offers, request)
     print(f"{len(result.accepted)} offers match your requirements.")
     if not result.accepted:
         print("No offers matched. Review your requirements and any rejection reasons below.")
-    _show_offers(result.accepted)
+    else:
+        preferred_departure = args.departure or "any"
+        ranking = rank_offers(result.accepted, weights, preferred_departure)
+        _show_ranking(ranking, weights, preferred_departure)
     if result.rejected:
         print("Rejected offers:")
         for offer_id, reasons in result.rejected.items():
