@@ -113,11 +113,47 @@ def test_search_with_no_matches_explains_rejections(app_dir):
     assert result.stdout.count("exceeds budget EUR 0.00.") == 6
 
 
+def test_booking_command_updates_availability_after_restart(app_dir):
+    offers = app_dir / "data" / "offers.csv"
+    rows = offers.read_text(encoding="utf-8").splitlines()
+    rows = [row.rsplit(",", 1)[0] + ",1" if row.startswith("O2,") else row for row in rows]
+    offers.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    original_data = offers.read_bytes()
+
+    first = run_app(app_dir, *SEARCH_ARGS, "--book", "O2")
+    assert first.returncode == 0, first.stderr
+    assert "Booking confirmed: BB-" in first.stdout
+    assert "One seat on O2 with Camino Express | EUR 46.00" in first.stdout
+
+    retry = run_app(app_dir, *SEARCH_ARGS, "--book", "O2")
+    assert retry.returncode == 1
+    assert "Cannot book O2. No seats available." in retry.stderr
+    assert "5 offers match your requirements." in retry.stdout
+    assert "Booking confirmed" not in retry.stdout
+    assert offers.read_bytes() == original_data
+
+
+def test_booking_command_rejects_offer_outside_requirements(app_dir):
+    result = run_app(app_dir, *SEARCH_ARGS, "--max-price", "50", "--book", "O6")
+    assert result.returncode == 1
+    assert "Cannot book O6. Price EUR 54.00 exceeds budget EUR 50.00." in result.stderr
+    assert not (app_dir / "data" / "bookings.sqlite3").exists()
+
+
+def test_custom_booking_file_keeps_demonstration_data_separate(app_dir):
+    booking_file = app_dir / "demo.sqlite3"
+    result = run_app(app_dir, *SEARCH_ARGS, "--bookings-file", str(booking_file), "--book", "O2")
+    assert result.returncode == 0, result.stderr
+    assert booking_file.is_file()
+    assert not (app_dir / "data" / "bookings.sqlite3").exists()
+
+
 @pytest.mark.parametrize(
     "arguments,expected",
     [
         (["--max-price", "50"], "A search needs"),
         (["--require-changeable"], "A search needs"),
+        (["--book", "O2"], "A search needs"),
         ([*SEARCH_ARGS, "--max-price", "abc"], "--max-price must be a number"),
         ([*SEARCH_ARGS, "--max-price", "NaN"], "budget must be a finite number"),
         ([*SEARCH_ARGS, "--max-price", "-1"], "budget must be a finite number"),

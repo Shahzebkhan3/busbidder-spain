@@ -9,6 +9,10 @@ __pycache__/
 # C extensions
 *.so
 
+# sql
+bookings.sqlite3
+bookings.sqlite3-*
+
 # Distribution / packaging
 .Python
 build/

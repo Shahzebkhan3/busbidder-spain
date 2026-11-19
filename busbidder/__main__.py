@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 import sys
 
+from .booking import BOOKINGS_FILENAME, BookingError, BookingStore
 from .data_loader import InvalidRecordError, load_offers
 from .filtering import filter_offers
 from .models import InvalidRequestError, Offer, TravelRequest
@@ -17,7 +18,7 @@ def _request_from_args(parser: argparse.ArgumentParser, args: argparse.Namespace
     """Build a search request, or return None when only loading data."""
     search_values = (
         args.destination, args.from_date, args.to_date, args.max_price,
-        args.max_transfers, args.departure, args.weights,
+        args.max_transfers, args.departure, args.weights, args.book,
     )
     if all(value is None for value in search_values) and not args.require_changeable:
         return None
@@ -67,7 +68,7 @@ def _show_ranking(result: RankingResult, weights: ScoreWeights, preferred_depart
 
 
 def main() -> int:
-    """Load offers and optionally search them. Invalid command arguments exit with 2."""
+    """Load offers, search them, and optionally book a matching offer."""
     # Find the data folder from this file's location, so the path still works
     # when the project is copied to another folder.
     project_dir = Path(__file__).resolve().parent.parent
@@ -84,6 +85,8 @@ def main() -> int:
         "--weights", nargs=4, metavar=("PRICE", "DURATION", "DEPARTURE", "FLEXIBILITY"),
         help="four percentages adding up to 100 (default: 40 25 15 20)",
     )
+    parser.add_argument("--book", metavar="OFFER_ID", help="book one seat on a matching offer")
+    parser.add_argument("--bookings-file", type=Path, help="use a separate file for saved bookings")
     args = parser.parse_args()
     request = _request_from_args(parser, args)
     weights = ScoreWeights()
@@ -111,6 +114,14 @@ def main() -> int:
         print(f"Unable to load marketplace data: {error}", file=sys.stderr)
         return 1
 
+    try:
+        booking_path = args.bookings_file or args.data_dir / BOOKINGS_FILENAME
+        booking_store = BookingStore(booking_path, offers)
+        offers = booking_store.available_offers()
+    except (BookingError, OSError) as error:
+        print(f"Unable to check seat availability: {error}", file=sys.stderr)
+        return 1
+
     print(f"Loaded {len(offers)} valid offers.")
     if request is None:
         for offer in offers:
@@ -129,6 +140,18 @@ def main() -> int:
         print("Rejected offers:")
         for offer_id, reasons in result.rejected.items():
             print(f"{offer_id} | " + " ".join(reasons))
+
+    if args.book is not None:
+        if args.book in result.rejected:
+            print(f"Cannot book {args.book}. " + " ".join(result.rejected[args.book]), file=sys.stderr)
+            return 1
+        try:
+            booking = booking_store.confirm_booking(args.book)
+        except BookingError as error:
+            print(f"Unable to book: {error}", file=sys.stderr)
+            return 1
+        print(f"Booking confirmed: {booking.reference}")
+        print(f"One seat on {booking.offer_id} with {booking.company} | EUR {booking.price_eur:.2f}")
     return 0
 
 
