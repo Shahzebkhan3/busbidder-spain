@@ -27,6 +27,19 @@ Enter your trip requirements and scoring preferences, then select **Search offer
 
 With an empty booking history, you should see four matches, with **Camino Express** first at **60.0**. Open **Rejected** to see why offers O1 and O6 were excluded.
 
+## Project structure
+
+```text
+busbidder-spain/
+├── busbidder/         Tkinter interface, terminal commands, and booking logic
+├── data/              Input CSV files and traveller profiles
+├── results/           Saved comparison CSVs used in the report
+├── scripts/           Offer dataset generator
+├── tests/             Automated tests
+├── README.md          Setup and usage instructions
+└── requirements.txt  Test dependency
+```
+
 ## Data and dependencies
 
 - `data/companies.csv`, `data/destinations.csv`, and `data/offers.csv` are the input files. Traveller presets are in `data/profiles.json`.
