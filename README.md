@@ -2,6 +2,10 @@
 
 BusBidder Spain compares and books simulated bus journeys from Madrid. It filters offers by traveller requirements and ranks the matches using configurable weights. ACIT4420 final project, OsloMet (2026).
 
+## GitHub repo
+
+[https://github.com/Shahzebkhan3/busbidder-spain](https://github.com/Shahzebkhan3/busbidder-spain)
+
 ## Start the desktop app
 
 Use Python 3.10 or later with Tcl/Tk support. The project was tested on Python 3.14.3. From the repository root in PowerShell, set up the environment:
